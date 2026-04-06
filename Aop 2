@@ -1,0 +1,59 @@
+/**
+ * Realiza a busca assíncrona de produtos no e-commerce.
+ * Implementação utilizando o padrão XMLHttpRequest para Interoperabilidade Web.
+ */
+function carregarProdutos() {
+    // 1. Instancia o objeto de comunicação
+    const xhr = new XMLHttpRequest();
+    const url = 'https://api.exemplo.com/v1/produtos';
+
+    // 2. Configura a requisição: Método GET, URL e Assíncrono (true)
+    xhr.open('GET', url, true);
+
+    // 3. Define cabeçalhos (Essencial para APIs REST profissionais)
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+
+    // 4. Monitora a mudança de estados e processa a resposta
+    xhr.onreadystatechange = function() {
+        // readyState 4: Operação completa
+        if (xhr.readyState === 4) {
+            
+            // Status 200 a 299: Sucesso
+            if (xhr.status >= 200 && xhr.status < 300) {
+                try {
+                    const dados = JSON.parse(xhr.responseText);
+                    renderizarProdutos(dados); // Chama função de UI
+                } catch (e) {
+                    console.error("Erro ao processar o JSON de resposta:", e);
+                }
+            } else {
+                // Tratamento de erros de servidor ou cliente (404, 500, etc)
+                exibirErro(`Erro ${xhr.status}: Não foi possível carregar os produtos.`);
+            }
+        }
+    };
+
+    // 5. Tratamento de erro de rede (Ex: queda de Wi-Fi)
+    xhr.onerror = function() {
+        exibirErro("Erro de rede. Verifique sua conexão.");
+    };
+
+    // 6. Envia a requisição ao servidor
+    xhr.send();
+}
+
+/**
+ * Funções auxiliares para manipulação do DOM (Interface)
+ */
+function renderizarProdutos(produtos) {
+    const vitrine = document.getElementById('vitrine');
+    vitrine.innerHTML = `<strong>Sucesso:</strong> ${produtos.length} produtos carregados no catálogo.`;
+    console.log("Dados recebidos da API:", produtos);
+}
+
+function exibirErro(mensagem) {
+    const vitrine = document.getElementById('vitrine');
+    vitrine.innerHTML = `<span style="color: red;">${mensagem}</span>`;
+    console.warn(mensagem);
+}
